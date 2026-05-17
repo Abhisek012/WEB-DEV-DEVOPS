@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signin</title>
+  </head>
+
+  <body>
+    <h1>Signin Page</h1>
+
+    <input id="username" type="text" placeholder="Enter username" />
+
+    <br /><br />
+
+    <input id="password" type="password" placeholder="Enter password" />
+
+    <br /><br />
+
+    <button onclick="signin()">Sign In</button>
+
+    <br /><br />
+
+    <a href="/signup"> Don't have an account? Signup </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+      async function signin() {
+        const username = document.getElementById("username").value;
+
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await axios.post("http://localhost:3000/signin", {
+            username,
+            password,
+          });
+
+          // save JWT token
+          const token = response.data.token;
+
+          localStorage.setItem("token", token);
+
+          alert("Signin successful");
+
+          // redirect to notes page
+          window.location = "/";
+        } catch (err) {
+          alert(err.response.data.message);
+        }
+      }
+    </script>
+  </body>
+</html>
