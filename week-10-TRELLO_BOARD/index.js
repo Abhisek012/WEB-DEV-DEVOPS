@@ -1,3 +1,7 @@
+const express = require("express")
+
+
+
 //usersname , password | USERS table
 //organisation | ORGANISATION table
 //boards | BOARDS table
@@ -36,9 +40,15 @@ const borads= [{
 const issues =[{
     id:1,
     title:"Add dark mode",
-    boradID: 1
+    boradID: 1,
+    state: "IN_PROGRESS" // NEXT_UP | IN_PROGRESS | DONE | ARCHIEVED
 },{
     id:2,
     title:"Add 100xdevs dashboard",
-    boradID:2
+    boradID:2,
+    state: "DONE"
 }]
+
+const app = express();
+
+app.listen(3000);
