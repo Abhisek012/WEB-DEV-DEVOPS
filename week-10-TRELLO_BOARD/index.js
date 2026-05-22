@@ -51,4 +51,49 @@ const issues =[{
 
 const app = express();
 
+// CRATE END POINTS
+app.post("/signup",(req,res)=>{
+    
+})
+app.post("/signin",(req,res)=>{
+    
+})
+app.post("/organisation",(req,res)=>{
+    
+})
+app.post("/add-member-to-organisation",(req,res)=>{
+    
+})
+
+app.post("/board",(req,res)=>{
+    
+})
+app.post("/issue",(req,res)=>{
+    
+})
+
+//READ END POINTS(GET) -- 
+
+app.get("/boards",(req,res)=>{
+    
+})
+app.get("/issues",(req,res)=>{
+
+})
+app.get("/members",(req,res)=>{
+
+})
+
+
+//PUT END POINTS  i,e UPDATE
+
+app.put("/issues",(req,res)=>{
+
+})
+
+// DELETE END POINTS
+app.delete("/members", (req,res)=>{
+    
+})
+
 app.listen(3000);
