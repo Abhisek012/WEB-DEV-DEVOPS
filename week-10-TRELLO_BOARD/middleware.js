@@ -1,20 +1,17 @@
-function authmiddleware(){
-    function authmiddleware(req,res, next){
+const jwt = require("jsonwebtoken")
 
-        const token = req.headers.token; //jwt
+function authmiddleware (req,res,next){
+    const token = req.headers.token; //jwt
 
-        const decoded = jwt.verify(token,"rjdekjsdfjkljfkjej8473289urdkjdpassword");
-        const userId = decoded.userId;
-        if(userId){
-            req.userId;
-            next();
-
-
-        }else{
-            res.status(403).json({
-                message:"Token was incorrect"
-            })
-        }
+    const decoded = jwt.verify(token,"attlasiansuperpassword123123")
+    const userId = decoded.userId;
+    if(userId){
+        req.userId =userId;
+        next();
+    }else{
+        res.status(403).json({
+            message: "Token is incorrect"
+        })
     }
 }
 
