@@ -1,10 +1,8 @@
-const express = require("express")
+const express = require("express");
 
 const jwt = require("jsonwebtoken");
 
 const { authmiddleware } = require("./middleware");
-
-
 
 //usersname , password | USERS table
 //organisation | ORGANISATION table
@@ -16,212 +14,210 @@ let ORGANISATION_ID = 1;
 let BOARDS_ID = 1;
 let ISSUES_ID = 1;
 
-const USERS =[
-// {
-//     id:1,
-//     username: "Abhisek",
-//     password: "123123"
-// },{
-//     id:2,
-//     username:"Raman",
-//     password:"456456"
-// }
-]
-
-const ORGANISATION=[
-//  {
-//     id:1,
-//     title:"100xdevs",
-//     description:"Learning coding platform",
-//     admin:1,
-//     members:[2]
-// },{
-//     id:2,
-//     title:"ramans org",
-//     description:"Experimenting",
-//     admin:2,
-//     members:[]
-// }
+const USERS = [
+  // {
+  //     id:1,
+  //     username: "Abhisek",
+  //     password: "123123"
+  // },{
+  //     id:2,
+  //     username:"Raman",
+  //     password:"456456"
+  // }
 ];
 
-const BOARDS= [{
-    id:1,
-    title: "100xdevs website frontend",
-    organistion: 1
-}]
+const ORGANISATION = [
+  //  {
+  //     id:1,
+  //     title:"100xdevs",
+  //     description:"Learning coding platform",
+  //     admin:1,
+  //     members:[2]
+  // },{
+  //     id:2,
+  //     title:"ramans org",
+  //     description:"Experimenting",
+  //     admin:2,
+  //     members:[]
+  // }
+];
 
-const ISSUES =[{
-    id:1,
-    title:"Add dark mode",
+const BOARDS = [
+  {
+    id: 1,
+    title: "100xdevs website frontend",
+    organistion: 1,
+  },
+];
+
+const ISSUES = [
+  {
+    id: 1,
+    title: "Add dark mode",
     boradID: 1,
-    state: "IN_PROGRESS" // NEXT_UP | IN_PROGRESS | DONE | ARCHIEVED
-},{
-    id:2,
-    title:"Add 100xdevs dashboard",
-    boradID:2,
-    state: "DONE"
-}]
+    state: "IN_PROGRESS", // NEXT_UP | IN_PROGRESS | DONE | ARCHIEVED
+  },
+  {
+    id: 2,
+    title: "Add 100xdevs dashboard",
+    boradID: 2,
+    state: "DONE",
+  },
+];
 
 const app = express();
-app.use(express.json()) //Backend receives it as raw data.
+app.use(express.json()); //Backend receives it as raw data.
 // express.json() converts that raw JSON into a JavaScript object.
 //app.use --> middlware executed bedore every request.
 
 // CRATE END POINTS
-app.post("/signup",(req,res)=>{
-     const username = req.body.username
-     const password = req.body.password
+app.post("/signup", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
 
-     const userExists = USERS.find(u=>u.username ===username)
-     if(userExists){
-        res.status(411).json({
-            message:"Username already exists !"
-        })
-        return;
-     }
+  const userExists = USERS.find((u) => u.username === username);
+  if (userExists) {
+    res.status(411).json({
+      message: "Username already exists !",
+    });
+    return;
+  }
 
-     USERS.push({
-        username,
-        password,
-        id: USERS_ID ++
-     })
+  USERS.push({
+    username,
+    password,
+    id: USERS_ID++,
+  });
 
-     res.json({
-        message: "You have successfully signed up !"
-     })
-})
+  res.json({
+    message: "You have successfully signed up !",
+  });
+});
 
-app.post("/signin",(req,res)=>{
-    const username = req.body.username
-    const password = req.body.password
+app.post("/signin", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
 
-    const userExists = USERS.find(u => u.username === username && u.password === password)
-    if(!userExists){
-        res.json(403).json({
-            message: "Invalid credentials"
-        })
-    }
+  const userExists = USERS.find(
+    (u) => u.username === username && u.password === password,
+  );
+  if (!userExists) {
+    res.json(403).json({
+      message: "Invalid credentials",
+    });
+  }
 
-    //create a jwt token for user
-    const token = jwt.sign({
-        userId: userExists.id
-    },"attlasiansuperpassword123123")
-  
-    res.json({
-        token
-    })
-})
+  //create a jwt token for user
+  const token = jwt.sign(
+    {
+      userId: userExists.id,
+    },
+    "attlasiansuperpassword123123",
+  );
 
-// Authneticated Route -- should use middleware 
-app.post("/organisation",authmiddleware,(req,res)=>{
-    const userId = req.userId;
-    ORGANISATION.push({
-        id:ORGANISATION_ID++,
-        title: req.body.title ,
-        description: req.body.description,
-        admin: userId,
-        members:[]
-    })
+  res.json({
+    token,
+  });
+});
 
-    res.json({
-        message: "Org created",
-        id: ORGANISATION_ID -1
-    })
-})
+// Authneticated Route -- should use middleware
+app.post("/organisation", authmiddleware, (req, res) => {
+  const userId = req.userId;
+  ORGANISATION.push({
+    id: ORGANISATION_ID++,
+    title: req.body.title,
+    description: req.body.description,
+    admin: userId,
+    members: [],
+  });
 
-app.post("/add-member-to-organisation",authmiddleware,(req,res)=>{
-    const userId = req.userId;
-    const organisationID = parseInt(req.body.organisationID);
-    const memberUserUsername = req.body.memberUserUsername;
+  res.json({
+    message: "Org created",
+    id: ORGANISATION_ID - 1,
+  });
+});
 
-    const organisation = ORGANISATION.find(org=> org.id === organisationID);
+app.post("/add-member-to-organisation", authmiddleware, (req, res) => {
+  const userId = req.userId;
+  const organisationID = parseInt(req.body.organisationID);
+  const memberUserUsername = req.body.memberUserUsername;
 
-    if(!organisation || organisation.admin !== userId){
-        res.status(411).json({
-            message: "Either this organisation does not exist or you are not the admin"
-        })
-        return
-    }
+  const organisation = ORGANISATION.find((org) => org.id === organisationID);
 
-    const memberUser = USERS.find(u=> u.username === memberUserUsername)
+  if (!organisation || organisation.admin !== userId) {
+    res.status(411).json({
+      message:
+        "Either this organisation does not exist or you are not the admin",
+    });
+    return;
+  }
 
-    if(!memberUser){
-        res.status(411).json({
-            message: "No user with this username exists in our DB"
-        })
-        return
-    }
+  const memberUser = USERS.find((u) => u.username === memberUserUsername);
 
-    if(organisation.members.includes(memberUser.id)){
-        return res.status(411).json({
-        message: "User is already a member"
-        })
-    }
+  if (!memberUser) {
+    res.status(411).json({
+      message: "No user with this username exists in our DB",
+    });
+    return;
+  }
 
-    organisation.members.push(memberUser.id)
+  if (organisation.members.includes(memberUser.id)) {
+    return res.status(411).json({
+      message: "User is already a member",
+    });
+  }
 
-    res.json({
-        message: "New member added."
-    })
-})
+  organisation.members.push(memberUser.id);
 
-app.post("/board",(req,res)=>{
-    
-})
-app.post("/issue",(req,res)=>{
-    
-})
+  res.json({
+    message: "New member added.",
+  });
+});
 
-//READ END POINTS(GET) -- 
-app.get("/organisation", authmiddleware,(req,res)=>{
-    const userId = req.userId;
-    const organisationID = parseInt(req.query.organisationID);
+app.post("/board", (req, res) => {});
+app.post("/issue", (req, res) => {});
 
-        const organisation = ORGANISATION.find(org=> org.id === organisationID);
+//READ END POINTS(GET) --
+app.get("/organisation", authmiddleware, (req, res) => {
+  const userId = req.userId;
+  const organisationID = parseInt(req.query.organisationID);
 
-    if(!organisation || organisation.admin !== userId){
-        res.status(411).json({
-            message: "Either this organisation does not exist or you are not the admin"
-        })
-        return
-    }
+  const organisation = ORGANISATION.find((org) => org.id === organisationID);
 
-    res.json({
-        organisation:{
-            ...organisation,
-            memners:organisation.members.map(memberId=>{
-                const user =  USERS.find(user=> user.id === memberId);
-                return{
-                    id:user.id,
-                    username: user.username
-                }
-            })
-        }
-    })
-})
-app.get("/boards",(req,res)=>{
-    
-})
-app.get("/issues",(req,res)=>{
+  if (!organisation || organisation.admin !== userId) {
+    res.status(411).json({
+      message:
+        "Either this organisation does not exist or you are not the admin",
+    });
+    return;
+  }
 
-})
-app.get("/members",(req,res)=>{
-
-})
-
+  res.json({
+    organisation: {
+      ...organisation,
+      memners: organisation.members.map((memberId) => {
+        const user = USERS.find((user) => user.id === memberId);
+        return {
+          id: user.id,
+          username: user.username,
+        };
+      }),
+    },
+  });
+});
+app.get("/boards", (req, res) => {});
+app.get("/issues", (req, res) => {});
+app.get("/members", (req, res) => {});
 
 //PUT END POINTS  i,e UPDATE
 
-app.put("/issues",(req,res)=>{
-
-})
+app.put("/issues", (req, res) => {});
 
 // DELETE END POINTS
 app.delete(
-    "/members/:organisationID/:memberUsername",
-    authmiddleware,
-    (req,res)=>{
-
+  "/members/:organisationID/:memberUsername",
+  authmiddleware,
+  (req, res) => {
     const userId = req.userId;
 
     const organisationID = parseInt(req.params.organisationID);
@@ -229,47 +225,41 @@ app.delete(
     const memberUsername = req.params.memberUsername;
 
     // Find organisation
-    const organisation = ORGANISATION.find(
-        org => org.id === organisationID
-    );
+    const organisation = ORGANISATION.find((org) => org.id === organisationID);
 
     // Check organisation exists and requester is admin
-    if(!organisation || organisation.admin !== userId){
-
-        return res.status(403).json({
-            message: "Either organisation does not exist or you are not admin"
-        })
+    if (!organisation || organisation.admin !== userId) {
+      return res.status(403).json({
+        message: "Either organisation does not exist or you are not admin",
+      });
     }
 
     // Find member user
-    const memberUser = USERS.find(
-        u => u.username === memberUsername
-    );
+    const memberUser = USERS.find((u) => u.username === memberUsername);
 
     // Check user exists
-    if(!memberUser){
-
-        return res.status(404).json({
-            message: "User does not exist"
-        })
+    if (!memberUser) {
+      return res.status(404).json({
+        message: "User does not exist",
+      });
     }
 
     // Check user is actually a member
-    if(!organisation.members.includes(memberUser.id)){
-
-        return res.status(403).json({
-            message: "User is not a member of this organisation"
-        })
+    if (!organisation.members.includes(memberUser.id)) {
+      return res.status(403).json({
+        message: "User is not a member of this organisation",
+      });
     }
 
     // Remove member
     organisation.members = organisation.members.filter(
-        id => id !== memberUser.id
+      (id) => id !== memberUser.id,
     );
 
     res.json({
-        message: "Member removed successfully"
-    })
-})
+      message: "Member removed successfully",
+    });
+  },
+);
 
 app.listen(3000);
