@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken")
 function authmiddleware (req,res,next){
     const token = req.headers.token; //jwt
 
-    const decoded = jwt.verify(token,"attlasiansuperpassword123123")
+    const decoded = jwt.verify(token,"harkirat123123")
     const userId = decoded.userId;
     if(userId){
         req.userId =userId;

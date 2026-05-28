@@ -1,25 +1,25 @@
 const express = require("express");
-
 const jwt = require("jsonwebtoken");
-
 const { authmiddleware } = require("./middleware");
+const { userModel , organisationModel } = require("./models");
+
 
 //usersname , password | USERS table
 //organisation | ORGANISATION table
 //boards | BOARDS table
 //issues | ISSUES table
 
-let USERS_ID = 1;
-let ORGANISATION_ID = 1;
+// let USERS_ID = 1;
+// let ORGANISATION_ID = 1;
 let BOARDS_ID = 1;
 let ISSUES_ID = 1;
 
-const USERS = [
-];
+// const USERS = [
+// ];
 
-const ORGANISATION = [
+// const ORGANISATION = [
 
-];
+// ];
 
 const BOARDS = [
   {
@@ -50,11 +50,15 @@ app.use(express.json()); //Backend receives it as raw data.
 //app.use --> middlware executed bedore every request.
 
 // CRATE END POINTS
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  const userExists = USERS.find((u) => u.username === username);
+  // const userExists = USERS.find((u) => u.username === username);
+  const userExists = await userModel.findOne({
+    username: username,
+  })
+
   if (userExists) {
     res.status(411).json({
       message: "Username already exists !",
@@ -62,28 +66,40 @@ app.post("/signup", (req, res) => {
     return;
   }
 
-  USERS.push({
-    username,
-    password,
-    id: USERS_ID++,
-  });
+  // USERS.push({
+  //   username,
+  //   password,
+  //   id: USERS_ID++,
+  // });
+
+  const newUser  = await userModel.create({
+    username: username,
+    password: password
+  })
 
   res.json({
+    id: newUser._id,
     message: "You have successfully signed up !",
   });
 });
 
-app.post("/signin", (req, res) => {
+app.post("/signin",async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  const userExists = USERS.find(
-    (u) => u.username === username && u.password === password,
-  );
+  // const userExists = USERS.find(
+  //   (u) => u.username === username && u.password === password,
+  // );
+  
+  const userExists = await userModel.findOne({
+    username:username,
+    password: password
+  })
   if (!userExists) {
     res.json(403).json({
       message: "Invalid credentials",
     });
+    return;
   }
 
   //create a jwt token for user
@@ -91,7 +107,7 @@ app.post("/signin", (req, res) => {
     {
       userId: userExists.id,
     },
-    "attlasiansuperpassword123123",
+    "harkirat123123",
   );
 
   res.json({
