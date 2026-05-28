@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 mongoose.connect(
-  "mongodb+srv://abhisekprusty018_db_user:rbARyx6cERqSAx6J@100xapps.a0fraxf.mongodb.net/trello"
+  ""
 )
 .then(() => {
   console.log("✅ MongoDB connected successfully");
