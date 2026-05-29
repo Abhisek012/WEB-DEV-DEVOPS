@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { authmiddleware } = require("./middleware");
 const { userModel , organisationModel } = require("./models");
 
+app.listen(3000);
+
 
 //usersname , password | USERS table
 //organisation | ORGANISATION table
@@ -257,7 +259,7 @@ app.delete(
   },
 );
 
-app.listen(3000);
+
 
 
 //this is for in memory db. we will see actual database impolementation in coming weeks
