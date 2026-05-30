@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 const { authmiddleware } = require("./middleware");
 const { userModel , organisationModel } = require("./models");
 
-app.listen(3000);
+
+
+
 
 
 //usersname , password | USERS table
@@ -118,19 +120,19 @@ app.post("/signin",async (req, res) => {
 });
 
 // Authneticated Route -- should use middleware
-app.post("/organisation", authmiddleware, (req, res) => {
+app.post("/organisation", authmiddleware, async (req, res) => {
   const userId = req.userId;
-  ORGANISATION.push({
-    id: ORGANISATION_ID++,
+
+  const newOrg = await organisationModel.create({
     title: req.body.title,
     description: req.body.description,
     admin: userId,
     members: [],
-  });
+  })
 
   res.json({
     message: "Org created",
-    id: ORGANISATION_ID - 1,
+    id: newOrg._id,
   });
 });
 
@@ -259,7 +261,7 @@ app.delete(
   },
 );
 
-
+app.listen(3000);
 
 
 //this is for in memory db. we will see actual database impolementation in coming weeks
