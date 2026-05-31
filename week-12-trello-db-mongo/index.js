@@ -136,14 +136,17 @@ app.post("/organisation", authmiddleware, async (req, res) => {
   });
 });
 
-app.post("/add-member-to-organisation", authmiddleware, (req, res) => {
+app.post("/add-member-to-organisation", authmiddleware, async (req, res) => {
   const userId = req.userId;
-  const organisationID = parseInt(req.body.organisationID);
+  const organisationID = req.body.organisationID;
   const memberUserUsername = req.body.memberUserUsername;
 
-  const organisation = ORGANISATION.find((org) => org.id === organisationID);
+  // const organisation = ORGANISATION.find((org) => org.id === organisationID); //In memory DB
+  const organisation = await organisationModel.findOne({
+    _id: organisationID
+  }) //stroed in actual db i.e. mongodb
 
-  if (!organisation || organisation.admin !== userId) {
+  if (!organisation || organisation.admin.toString() !== userId) {
     res.status(411).json({
       message:
         "Either this organisation does not exist or you are not the admin",
@@ -151,7 +154,10 @@ app.post("/add-member-to-organisation", authmiddleware, (req, res) => {
     return;
   }
 
-  const memberUser = USERS.find((u) => u.username === memberUserUsername);
+  // const memberUser = USERS.find((u) => u.username === memberUserUsername);
+  const memberUser = await userModel.findOne({
+    username: memberUserUsername
+  })
 
   if (!memberUser) {
     res.status(411).json({
@@ -160,11 +166,15 @@ app.post("/add-member-to-organisation", authmiddleware, (req, res) => {
     return;
   }
 
-  if (organisation.members.includes(memberUser.id)) {
-    return res.status(411).json({
-      message: "User is already a member",
-    });
-  }
+
+  //syntax of push array in mongoose
+  organisation.updateOne({ 
+    _id:organisationID
+  },{
+    $push:{
+      "members": memberUser._id
+    }
+  })
 
   organisation.members.push(memberUser.id);
 
@@ -177,11 +187,15 @@ app.post("/board", (req, res) => {});
 app.post("/issue", (req, res) => {});
 
 //READ END POINTS(GET) --
-app.get("/organisation", authmiddleware, (req, res) => {
+app.get("/organisation", authmiddleware, async (req, res) => {
   const userId = req.userId;
-  const organisationID = parseInt(req.query.organisationID);
+  const organisationID = req.query.organisationID;
+  const memberUserUsername = req.query.memberUserUsername //right now we do not using this but it is a reminder that in get request we use query insead of body to get the data
 
-  const organisation = ORGANISATION.find((org) => org.id === organisationID);
+  // const organisation = ORGANISATION.find((org) => org.id === organisationID);
+  const organisation = await organisationModel.findOne({
+    _id: organisationID
+  })
 
   if (!organisation || organisation.admin !== userId) {
     res.status(411).json({
@@ -192,18 +206,10 @@ app.get("/organisation", authmiddleware, (req, res) => {
   }
 
   res.json({
-    organisation: {
-      ...organisation,
-      memners: organisation.members.map((memberId) => {
-        const user = USERS.find((user) => user.id === memberId);
-        return {
-          id: user.id,
-          username: user.username,
-        };
-      }),
-    },
+    organisation: organisation
   });
 });
+
 app.get("/boards", (req, res) => {});
 app.get("/issues", (req, res) => {});
 app.get("/members", (req, res) => {});
@@ -237,7 +243,7 @@ app.delete(
     const memberUser = USERS.find((u) => u.username === memberUsername);
 
     // Check user exists
-    if (!memberUser) {k
+    if (!memberUser) {
       return res.status(404).json({
         message: "User does not exist",
       });
@@ -256,9 +262,9 @@ app.delete(
     );
 
     res.json({
-      message: "Member removed successfully",
+      message: "Member removed successfully"
     });
-  },
+  }
 );
 
 
