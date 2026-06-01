@@ -3,50 +3,22 @@ const jwt = require("jsonwebtoken");
 const { authmiddleware } = require("./middleware");
 const { userModel, organisationModel } = require("./models");
 
+const cors = require("cors"); 
+
+
 //usersname , password | USERS table
 //organisation | ORGANISATION table
 //boards | BOARDS table
 //issues | ISSUES table
 
-// let USERS_ID = 1;
-// let ORGANISATION_ID = 1;
-let BOARDS_ID = 1;
-let ISSUES_ID = 1;
-
-// const USERS = [
-// ];
-
-// const ORGANISATION = [
-
-// ];
-
-const BOARDS = [
-  {
-    id: 1,
-    title: "100xdevs website frontend",
-    organistion: 1,
-  },
-];
-
-const ISSUES = [
-  {
-    id: 1,
-    title: "Add dark mode",
-    boradID: 1,
-    state: "IN_PROGRESS", // NEXT_UP | IN_PROGRESS | DONE | ARCHIEVED
-  },
-  {
-    id: 2,
-    title: "Add 100xdevs dashboard",
-    boradID: 2,
-    state: "DONE",
-  },
-];
 
 const app = express();
 app.use(express.json()); //Backend receives it as raw data.
 // express.json() converts that raw JSON into a JavaScript object.
 //app.use --> middlware executed bedore every request.
+
+
+app.use(cors()); 
 
 // CRATE END POINTS
 app.post("/signup", async (req, res) => {

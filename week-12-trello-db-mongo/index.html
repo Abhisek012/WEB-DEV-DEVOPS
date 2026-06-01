@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trello Clone - Beautiful Vanilla JS</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #E6F0F8; /* Light Sky Blue */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Typography */
+        h1 {
+            color: #0079BF; /* Trello Blue */
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #0052CC; /* Secondary Blue */
+            border-bottom: 2px solid #E6F0F8;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        h3, h4 {
+            color: #172B4D; /* Dark Gray-Blue */
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        h3 { font-size: 1.3rem; }
+        h4 { font-size: 1.1rem; color: #444; }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        /* Inputs & Buttons */
+        input, select, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus {
+            border-color: #0079BF;
+            box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.2);
+            outline: none;
+        }
+
+        button {
+            background-color: #0079BF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0052CC;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Styling for particular buttons */
+        #logout-btn {
+            background-color: #EB5757; /* Red Accent */
+            width: auto;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        #logout-btn:hover {
+            background-color: #C14444;
+        }
+
+        #auth-btn, #toggle-auth {
+            display: inline-block;
+            width: auto;
+            margin: 10px 0;
+        }
+
+        #toggle-auth {
+             background: none;
+             color: #0052CC;
+             border: none;
+             padding: 0;
+             font-weight: 500;
+             margin-left: 10px;
+        }
+
+        #toggle-auth:hover {
+            color: #0079BF;
+            background: none;
+            text-decoration: underline;
+        }
+
+        /* Card Styles */
+        .card {
+            border: 1px solid #E6F0F8;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            background: #FAFBFC; /* Very Light Gray */
+            transition: box-shadow 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* List & Details Styles */
+        ul {
+            padding-left: 20px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        #display-org-members li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* Specific Layouts */
+        #auth-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #auth-section {
+            text-align: center;
+            position: relative;
+        }
+
+        #dashboard-section {
+            position: relative;
+            padding-top: 20px;
+        }
+
+        #dashboard-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        #add-member-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: flex-start;
+        }
+
+        #add-member-form input { margin-bottom: 0; flex: 1; }
+        #add-member-form button { width: auto; flex-shrink: 0; padding: 12px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trello Clone</h1>
+
+    <div id="auth-section">
+        <h2 id="auth-title">Sign In</h2>
+        <form id="auth-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="auth-btn">Login</button>
+        </form>
+        <p>
+            <button id="toggle-auth">Need an account? Sign up instead.</button>
+        </p>
+    </div>
+
+    <div id="dashboard-section" class="hidden">
+        <button id="logout-btn">Logout</button>
+        <h2 id="dashboard-title">Dashboard</h2>
+
+        <div class="card">
+            <h3>Create Workspace</h3>
+            <form id="create-org-form">
+                <input type="text" id="org-title" placeholder="Workspace Title" required>
+                <textarea id="org-desc" placeholder="Workspace Description" rows="3" required></textarea>
+                <button type="submit">Create Workspace</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Load Workspace</h3>
+            <form id="load-org-form">
+                <input type="text" id="load-org-id" placeholder="Enter Organization ID" required>
+                <button type="submit">Load</button>
+            </form>
+        </div>
+
+        <div id="org-details" class="card hidden">
+            <h3 id="display-org-title"></h3>
+            <p id="display-org-desc"></p>
+            <hr>
+            <h4>Team Members</h4>
+            <ul id="display-org-members"></ul>
+
+            <h4>Add Member</h4>
+            <form id="add-member-form">
+                <input type="text" id="new-member-username" placeholder="Username to add" required>
+                <button type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:3000";
+    let isLoginMode = true;
+    let currentToken = localStorage.getItem("token") || "";
+    let activeOrgId = "";
+
+    // DOM Elements
+    const authSection = document.getElementById("auth-section");
+    const dashboardSection = document.getElementById("dashboard-section");
+    const authForm = document.getElementById("auth-form");
+    const authTitle = document.getElementById("auth-title");
+    const authBtn = document.getElementById("auth-btn");
+    const toggleAuthBtn = document.getElementById("toggle-auth");
+
+    // Check if logged in on page load
+    if (currentToken) {
+        showDashboard();
+    }
+
+    // Toggle between Sign In and Sign Up
+    toggleAuthBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        authTitle.innerText = isLoginMode ? "Sign In" : "Sign Up";
+        authBtn.innerText = isLoginMode ? "Login" : "Create Account";
+        toggleAuthBtn.innerText = isLoginMode ? "Need an account? Sign up instead." : "Already have an account? Sign in.";
+    });
+
+    // Handle Login / Signup
+    authForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const endpoint = isLoginMode ? "/signin" : "/signup";
+
+        try {
+            const response = await fetch(API_URL + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                if (isLoginMode) {
+                    currentToken = data.token;
+                    localStorage.setItem("token", currentToken);
+                    showDashboard();
+                } else {
+                    alert("Account created! You can now log in.");
+                    isLoginMode = true; // explicitly set login mode
+                    authTitle.innerText = "Sign In";
+                    authBtn.innerText = "Login";
+                    toggleAuthBtn.innerText = "Need an account? Sign up instead.";
+                    authForm.reset(); // clear the form
+                }
+            } else {
+                alert(data.message || "An error occurred");
+            }
+        } catch (error) {
+            console.error("Auth Error:", error);
+        }
+    });
+
+    // Logout
+    document.getElementById("logout-btn").addEventListener("click", () => {
+        currentToken = "";
+        localStorage.removeItem("token");
+        authSection.classList.remove("hidden");
+        dashboardSection.classList.add("hidden");
+        document.getElementById("org-details").classList.add("hidden");
+        // Also clear inputs
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+    });
+
+    // Show Dashboard UI
+    function showDashboard() {
+        authSection.classList.add("hidden");
+        dashboardSection.classList.remove("hidden");
+    }
+
+    // Create Organization
+    document.getElementById("create-org-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = document.getElementById("org-title").value;
+        const description = document.getElementById("org-desc").value;
+
+        const response = await fetch(API_URL + "/organisation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "token": currentToken
+            },
+            body: JSON.stringify({ title, description })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(`Organization Created! ID: ${data.id}`);
+            document.getElementById("load-org-id").value = data.id; // Auto-fill the load form
+            // Also reset create form
+            document.getElementById("org-title").value = "";
+            document.getElementById("org-desc").value = "";
+        } else {
+            alert(data.message);
+        }
+    });
+
+    // Load Organization
+    document.getElementById("load-org-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await fetchAndDisplayOrg(document.getElementById("load-org-id").value);
+    });
+
+    async function fetchAndDisplayOrg(orgId) {
+        if (!orgId) return;
+
+        const response = await fetch(`${API_URL}/organisation?organisationID=${orgId}`, {
+            headers: { "token": currentToken }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            activeOrgId = orgId;
+            document.getElementById("org-details").classList.remove("hidden");
+            document.getElementById("display-org-title").innerText = data.organisation.title;
+            document.getElementById("display-org-desc").innerText = data.organisation.description;
+
+            // Display Members
+            const membersList = document.getElementById("display-org-members");
+            membersList.innerHTML = ""; // Clear old list
+            data.organisation.members.forEach(member => {
+                const li = document.createElement("li");
+                li.innerText = member.username;
+                membersList.appendChild(li);
+            });
+        } else {
+            alert(data.message);
+        }
+    }
+
+    // Add Member
+    document.getElementById("add-member-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const memberUsername = document.getElementById("new-member-username").value;
+
+        const response = await fetch(API_URL + "/add-member-to-organisation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "token": currentToken
+            },
+            body: JSON.stringify({ organisationID: activeOrgId, memberUserUsername: memberUsername })
+        });
+        const data = await response.json();
+
+        alert(data.message);
+        if (response.ok) {
+            document.getElementById("new-member-username").value = "";
+            fetchAndDisplayOrg(activeOrgId); // Refresh data to show new member
+        }
+    });
+
+</script>
+</body>
+</html>
