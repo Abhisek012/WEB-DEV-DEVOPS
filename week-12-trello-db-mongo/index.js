@@ -200,8 +200,20 @@ app.get("/organisation", authmiddleware, async (req, res) => {
     return;
   }
 
+  const members = await userModel.find({
+    _id: organisation.members
+  })
+
   res.json({
-    organisation: organisation,
+    organisation: {
+      title: organisation.title,
+      description: organisation.description,
+      members: members.map(m=> ({
+        username: m.username,
+        _id: m._id
+      }))
+      
+    },
   });
 });
 
