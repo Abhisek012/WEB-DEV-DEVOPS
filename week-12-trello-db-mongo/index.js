@@ -192,8 +192,10 @@ app.get("/organisation", authmiddleware, async (req, res) => {
     _id: organisationID,
   });
 
+  console.log("userId from JWT:", userId);
+  console.log("admin:", organisation?.admin?.toString());
   if (!organisation || organisation.admin.toString() !== userId) {
-    res.status(411).json({
+    res.status(403).json({
       message:
         "Either this organisation does not exist or you are not the admin",
     });
@@ -217,86 +219,61 @@ app.get("/organisation", authmiddleware, async (req, res) => {
   });
 });
 
-app.get("/boards", (req, res) => {});
+app.get("/boards",authmiddleware,async  (req, res) => {
+
+});
+
 app.get("/issues", (req, res) => {});
-app.get("/members", (req, res) => {});
+
+app.get("/members", authmiddleware, async (req, res) => {
+
+  const userId = req.userId;
+  const organisationId = req.query.organisationId
+
+  const organisation = await organisationModel.findOne({
+    _id: organisationId
+  })
+
+  if(!organisation){
+    res.status(404).json({
+      message: "Organisation not found."
+    })
+    return
+  }
+
+  const members = await userModel.find({
+    _id: organisation.members
+  })
+ 
+
+  
+  const isAdmin = organisation.admin.toString() === req.userId;
+
+
+  const isMember = organisation.members.some(
+  m => m.toString() === req.userId
+  );
+
+
+  if(!isAdmin && !isMember){
+    res.status(403).json({
+      message: "You are not the part of this Organisation."
+    })
+    return
+  }
+
+  res.json({
+    members: members.map(m => ({
+      id: m._id,
+      username: m.username
+    }))
+  })
+
+});
 
 //PUT END POINTS  i,e UPDATE
 
 app.put("/issues", (req, res) => {});
-
-// DELETE END POINTS
-// app.delete("/members", authmiddleware, async (req, res) => {
-//   const userId = req.userId;
-
-//   const { organisationId, memberUserId } = req.body;
-
-//   // Find organisation
-//   // const organisation = ORGANISATION.find((org) => org.id === organisationID);
-//   const organisation = await organisationModel.findOne({
-//     _id: organisationID,
-//   });
-
-//   // Check organisation exists and requester is admin
-//   if (!organisation || organisation.admin.toString() !== userId) {
-//     return res.status(403).json({
-//       message: "Either organisation does not exist or you are not admin",
-//     });
-//   }
-
-//   // // Find member user
-//   // const memberUser = USERS.find((u) => u.username === memberUsername);
-
-//   // // Check user exists
-//   // if (!memberUser) {
-//   //   return res.status(404).json({
-//   //     message: "User does not exist",
-//   //   });
-//   // }
-
-//   const memberUser = await userModel.findOne({
-//     username: memberUsername,
-//   });
-
-//   if (!memberUser) {
-//     res.status(403).json({
-//       message: "member does not exist",
-//     });
-//     return;
-//   }
-
-//   // Check user is actually a member  -- wrong approach
-//   // if (!organisation.members.includes(memberUser._id)) {
-//   //   return res.status(403).json({
-//   //     message: "User is not a member of this organisation",
-//   //   });
-//   // }
-
-//   const isMember = organisation.members.some(
-//     (member) => member.toString() === memberUser._id.toString(),
-//   );
-
-//   if (!isMember) {
-//     return res.status(403).json({
-//       message: "User is not a member of this organisation",
-//     });
-//   }
-
-//   // Remove member
-
-//   // await organisationModel.updateOne({
-//   //   _id: organisationID
-//   // },{$pull:{members: memberUser._id}})
-
-//   organisation.members = organisation.members.filter(
-//     (x) => x.toString() !== memberUser._id.toString(),
-//   );
-//   await organisation.save();
-
-//   res.json({
-//     message: "Member removed successfully",
-//   });
-// });
 
 
 app.delete("/members", authmiddleware, async (req, res) => {
