@@ -76,7 +76,7 @@ app.post("/signin", async (req, res) => {
   //create a jwt token for user
   const token = jwt.sign(
     {
-      userId: userExists.id,
+      userId: userExists._id,
     },
     "harkirat123123",
   );
