@@ -72,3 +72,66 @@ console.log((first_element(array)))
 
  console.log(isLegal(user1));
  
+
+ // ENUM
+  
+// type KeyInput = "up" | "down" | "left" | "right"
+
+// enum Direction {
+//     up,  //0
+//     down,  //1
+//     left,  //2
+//     right   //3
+// }
+
+// enum Direction {
+//     up = 1, 
+//     down,  // becomes 2 by defalt
+//     left,  //3
+//     right   //4  
+// }
+// Here if you are assigning string value to enum members , You have assign every member . It's a key value pair thing
+
+//  function doSomething(keyPressed: Direction){
+//     // do something
+//     if(keyPressed == Direction.up){
+
+//     }
+//  //
+//  }
+
+//  doSomething("up")
+//  doSomething("left")
+//  doSomething("eijfji")
+
+// doSomething(Direction.up)
+// doSomething(Direction.down)
+
+// Types of Enum Members
+// Enum members generally fall into two categories depending on how you use them:
+
+// Numeric Members:
+//  The value is a number. By default, the first member starts at 0, and the rest count up. 
+//  You can also set them yourself.
+
+
+// String Members:
+//   The value is a string literal. String members are often preferred for easier reading and debugging.
+
+
+// GENERICS
+
+function identity <T>(args:[T , ...T[]]):T{
+    // return args[0]!;  // this might throw error if we give empty array as an input
+    return args[0]; // args:[T , ...T[]]  -> By using this we say that the first elment will be always there (we can not call empty array) and then other elements will be there also it can be empty array. 
+}
+
+let a1 = identity<string>(["Stringggg", "hi"])
+let a2 = identity<number>([33]);   // It's not mandatory to write <type> in function calling. Typescript will automatically knows which type is being called.
+let a3 = identity(["Stringggg", 54 ,"fjrj"])   // If we want to use mix bag here we do not mention types explicitely in funciton calling
+
+console.log(a1);
+console.log(a2);
+
+
+a1.toUpperCase() // By generics we can us string properties now
