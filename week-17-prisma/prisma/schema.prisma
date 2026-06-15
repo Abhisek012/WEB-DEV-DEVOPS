@@ -12,17 +12,22 @@ datasource db {
   provider = "postgresql"
 }
 
-
-model User{
-  id        Int @id @default(autoincrement())
-  email String
-  name String @unique
+model User {
+  id       Int    @id @default(autoincrement())
+  username String?
   password String
+  age      Int?
+  city     String?
+
+  todos    Todo[]
 }
 
-model Tdo {
-  id Int @id @default(autoincrement())
-  title String
-  description String?
-  status Boolean @default(false)
+model Todo {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  done        Boolean @default(false)
+
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id])
 }
