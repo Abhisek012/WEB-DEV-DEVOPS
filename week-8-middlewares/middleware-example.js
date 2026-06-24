@@ -19,15 +19,18 @@ app.get("/", function(req, res) {
 
 
 // Start server
-app.listen(3000); // server runs on port 3000
-
+ // server runs on port 3000
+app.listen(3000);
 
 
 
 // Extra short memory note:
 
+
 // Middleware = code that runs before route handler
 // next() = continue request flow
 // app.use() = apply middleware
 // req = request data
+
+// res = response data
 // res = response data
