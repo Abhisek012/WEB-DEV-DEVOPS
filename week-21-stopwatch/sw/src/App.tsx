@@ -1,0 +1,6 @@
+function App(){
+  return <div style={{display:"flex" , justifyContent:"center" , width:"100vw", height: "100vh" , alignItems: "center"}}>
+    Hi there
+  </div>
+}
+export default App
